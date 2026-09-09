@@ -1,0 +1,9 @@
+setting,evidence,image_description,k,f1,precision,recall
+Full,true,true,3,31.6,36.9,30.4
+Without evidence,false,true,,28.1,33.5,27.0
+Without image description,true,false,3,29.9,34.8,28.7
+k=1,true,true,1,28.7,35.1,27.3
+k=2,true,true,2,30.5,36.1,29.0
+k=4,true,true,4,31.3,36.5,29.8
+k=5,true,true,5,31.1,36.0,29.7
+

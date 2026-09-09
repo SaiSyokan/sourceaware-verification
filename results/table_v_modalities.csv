@@ -1,0 +1,5 @@
+input,activated_modules,image_veracity_f1,text_veracity_f1,image_text_consistency_f1
+Image only,Image veracity,64.4,,
+Text only,Text veracity,,62.8,
+Image-Text,"Image, Text, Consistency",65.0,63.4,60.7
+

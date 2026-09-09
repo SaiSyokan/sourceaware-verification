@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "This software accompanies a pre-publication manuscript. Cite the archival paper after publication; cite the WWW paper when using OctantFake."
+title: "Fine-Grained Multimodal Disinformation Verification"
+type: software
+version: 0.1.0
+date-released: 2026-09-08
+authors:
+  - family-names: Cui
+    given-names: Shuhan
+  - family-names: Wang
+    given-names: Hanrui
+  - family-names: Chen
+    given-names: Patrick H.
+  - family-names: Echizen
+    given-names: Isao
+license: MIT
+repository-code: "https://github.com/SaiSyokan/fine-grained-multimodal-verification"

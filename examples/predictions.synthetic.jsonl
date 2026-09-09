@@ -1,0 +1,9 @@
+{"sample_id":"example-ttt","gold_label":"TTT","prediction":"TTT"}
+{"sample_id":"example-ttf","gold_label":"TTF","prediction":"TTF"}
+{"sample_id":"example-tft","gold_label":"TFT","prediction":"TFT"}
+{"sample_id":"example-tff","gold_label":"TFF","prediction":"TFF"}
+{"sample_id":"example-ftt","gold_label":"FTT","prediction":"FTT"}
+{"sample_id":"example-ftf","gold_label":"FTF","prediction":"FTF"}
+{"sample_id":"example-fft","gold_label":"FFT","prediction":"FFT"}
+{"sample_id":"example-fff","gold_label":"FFF","prediction":"FFF"}
+

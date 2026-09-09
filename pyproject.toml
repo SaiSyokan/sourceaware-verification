@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fine-grained-multimodal-verification"
+version = "0.1.0"
+description = "Source-aware multimodal disinformation verification"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Shuhan Cui"},
+  {name = "Hanrui Wang"},
+  {name = "Patrick H. Chen"},
+  {name = "Isao Echizen"},
+]
+dependencies = []
+
+[project.optional-dependencies]
+evidence = ["google-cloud-vision>=3.7", "requests>=2.31"]
+inference = ["Pillow>=10.0", "torch>=2.1"]
+training = ["datasets>=3.0", "peft>=0.12", "transformers>=4.42"]
+dev = []
+
+[project.scripts]
+sourceaware = "sourceaware_verification.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

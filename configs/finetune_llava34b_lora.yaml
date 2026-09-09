@@ -1,0 +1,38 @@
+experiment: factor_level_finetuning
+dataset:
+  train_samples: 7200
+  validation_samples: 800
+  held_out_test_samples: 800
+  factor_instances_per_epoch: 21600
+model:
+  backbone: LLaVA-1.6-34B
+  checkpoint: liuhaotian/llava-v1.6-34b
+  base_language_model: NousResearch/Nous-Hermes-2-Yi-34B
+  shared_across_factors: true
+  freeze_vision_encoder: true
+adaptation:
+  method: LoRA
+  rank: 16
+  dropout: 0.05
+  alpha: null
+  target_modules: null
+optimization:
+  optimizer: AdamW
+  learning_rate: 2.0e-5
+  effective_batch_size: 64
+  micro_batch_size: null
+  gradient_accumulation_steps: null
+  weight_decay: null
+  betas: null
+  epsilon: null
+  scheduler: null
+  warmup: null
+  precision: null
+  gradient_clip: null
+  max_epochs: 3
+  approximate_max_steps: 1014
+  random_seed: null
+selection:
+  criterion: validation_macro_f1
+retrieval_during_training: false
+required_confirmation: docs/TRAINING.md

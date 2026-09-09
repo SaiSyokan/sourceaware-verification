@@ -1,0 +1,22 @@
+dataset_split: calibration
+samples: 800
+backbone: LLaVA-1.6-34B
+strategy: separate_structured
+variants:
+  full:
+    use_evidence: true
+    use_image_description: true
+    retrieval_limit: 3
+  without_evidence:
+    use_evidence: false
+    use_image_description: true
+    retrieval_limit: 3
+  without_image_description:
+    use_evidence: true
+    use_image_description: false
+    retrieval_limit: 3
+  retrieval_budget:
+    use_evidence: true
+    use_image_description: true
+    retrieval_limits: [1, 2, 3, 4, 5]
+

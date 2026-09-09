@@ -1,0 +1,6 @@
+{"sample_id":"synthetic-image-only","gold_decisions":{"veracity:image":"F"},"final_decisions":{"veracity:image":"F"}}
+{"sample_id":"synthetic-image-only-t","gold_decisions":{"veracity:image":"T"},"final_decisions":{"veracity:image":"T"}}
+{"sample_id":"synthetic-text-only","gold_decisions":{"veracity:text":"T"},"final_decisions":{"veracity:text":"T"}}
+{"sample_id":"synthetic-text-only-f","gold_decisions":{"veracity:text":"F"},"final_decisions":{"veracity:text":"F"}}
+{"sample_id":"synthetic-image-text","gold_decisions":{"veracity:image":"F","veracity:text":"T","consistency:image:text":"F"},"final_decisions":{"veracity:image":"F","veracity:text":"T","consistency:image:text":"F"}}
+{"sample_id":"synthetic-image-text-ttt","gold_decisions":{"veracity:image":"T","veracity:text":"T","consistency:image:text":"T"},"final_decisions":{"veracity:image":"T","veracity:text":"T","consistency:image:text":"T"}}
