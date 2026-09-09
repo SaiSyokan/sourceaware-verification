@@ -16,9 +16,9 @@ OctantFake construction and release tooling remain in the separate [WWW reposito
 
 For an input with available modalities \(M_X\), the analyzer builds the pairwise relation set \(R_X\). The router activates
 
-\[
+$$
 F_X = \{v_m \mid m \in M_X\} \cup \{c_{mn} \mid (m,n) \in R_X\}.
-\]
+$$
 
 Each active validator returns a decision, confidence, and evidence-grounded explanation. The structured aggregator jointly reviews these outputs while preserving their factor identities.
 
@@ -38,7 +38,7 @@ flowchart LR
     G --> Y[Factorized prediction]
 ```
 
-The released implementation reproduces the evaluated image-only, text-only, and image-text settings. The general formulation permits additional modalities, but audio/video validators were not evaluated in the manuscript and are therefore not presented as implemented results.
+The released implementation supports the evaluated image-only, text-only, and image-text settings. The general formulation permits additional modalities, but audio/video validators were not evaluated in the manuscript and are therefore not presented as implemented results.
 
 ## Installation
 
