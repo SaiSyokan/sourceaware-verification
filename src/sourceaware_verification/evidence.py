@@ -13,6 +13,7 @@ from .io import dump_json, load_json, load_jsonl, validate_identifier
 
 
 UNAVAILABLE = "[Evidence unavailable under the current retrieval setting]"
+ZERO_BUDGET = "[No retrieved evidence instances supplied under retrieval budget k=0]"
 
 
 class EvidenceStore:
@@ -32,6 +33,10 @@ class EvidenceStore:
 
     @staticmethod
     def render_text(value: dict[str, Any] | None, limit: int = 3) -> str:
+        if limit < 0:
+            raise ValueError("retrieval limit must be non-negative")
+        if limit == 0:
+            return ZERO_BUDGET
         if not value:
             return UNAVAILABLE
         rendered = []
@@ -45,6 +50,10 @@ class EvidenceStore:
 
     @staticmethod
     def render_image(value: dict[str, Any] | None, limit: int = 3) -> str:
+        if limit < 0:
+            raise ValueError("retrieval limit must be non-negative")
+        if limit == 0:
+            return ZERO_BUDGET
         if not value:
             return UNAVAILABLE
         parts = []

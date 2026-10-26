@@ -9,16 +9,28 @@ from typing import Mapping
 from .backend import Backend
 from .evidence import EvidenceStore
 from .labels import decisions_from_label, label_from_decisions
-from .parsing import parse_factor, parse_label, parse_questions, parse_structured_decisions
+from .parsing import (
+    parse_factor,
+    parse_final_decision,
+    parse_label,
+    parse_questions,
+    parse_structured_decisions,
+)
 from .prompts import (
+    CROSS_FACTOR_AGGREGATION,
+    FACTORWISE_STRUCTURED_AGGREGATION,
     HOLISTIC_EIGHT_WAY,
     IMAGE_DESCRIPTION,
     IMAGE_TEXT_CONSISTENCY,
+    IMAGE_TEXT_CONSISTENCY_NO_DESCRIPTION,
     IMAGE_VERACITY,
+    IMAGE_VERACITY_IMAGE_ONLY,
+    IMAGE_VERACITY_NO_DESCRIPTION,
+    IMAGE_VERACITY_NO_EVIDENCE,
     JOINT_FACTORS,
     PROMPT_VERSION,
-    STRUCTURED_AGGREGATION,
     TEXT_VERACITY,
+    TEXT_VERACITY_NO_EVIDENCE,
     VERIFICATION_QUESTIONS,
 )
 from .routing import InputAnalyzer, VerificationRouter
@@ -31,6 +43,7 @@ STRATEGIES = (
     "joint_factors",
     "separate_deterministic",
     "separate_structured",
+    "separate_cross_factor",
 )
 
 
@@ -46,8 +59,8 @@ class SourceAwareVerifier:
         use_image_description: bool = True,
         retrieval_limit: int = 3,
     ) -> None:
-        if retrieval_limit < 1:
-            raise ValueError("retrieval_limit must be positive")
+        if retrieval_limit < 0:
+            raise ValueError("retrieval_limit must be non-negative")
         self.backend = backend
         self.evidence = evidence
         self.use_evidence = use_evidence
@@ -60,6 +73,32 @@ class SourceAwareVerifier:
     def _image_path(row: Mapping[str, object], media_root: str | Path) -> Path:
         path = Path(str(row["image_path"])).expanduser()
         return path if path.is_absolute() else Path(media_root) / path
+
+    def _image_veracity_prompt(self, description: str, image_evidence: str) -> str:
+        if self.use_evidence and self.use_image_description:
+            return IMAGE_VERACITY.format(
+                image_description=description,
+                image_evidence=image_evidence,
+            )
+        if self.use_evidence:
+            return IMAGE_VERACITY_NO_DESCRIPTION.format(image_evidence=image_evidence)
+        if self.use_image_description:
+            return IMAGE_VERACITY_NO_EVIDENCE.format(image_description=description)
+        return IMAGE_VERACITY_IMAGE_ONLY
+
+    def _text_veracity_prompt(
+        self, text: str, questions: tuple[str, ...], text_evidence: str
+    ) -> str:
+        if self.use_evidence:
+            return TEXT_VERACITY.format(
+                text=text,
+                questions="\n".join(questions),
+                text_evidence=text_evidence,
+            )
+        return TEXT_VERACITY_NO_EVIDENCE.format(
+            text=text,
+            questions="\n".join(questions),
+        )
 
     def predict(
         self,
@@ -87,7 +126,6 @@ class SourceAwareVerifier:
             if image_path and self.use_image_description
             else ""
         )
-        omitted_description = description or "[Image description omitted by ablation]"
         image_value = self.evidence.image(sample_id) if self.use_evidence else None
         text_value = self.evidence.text(sample_id) if self.use_evidence else None
         image_evidence = self.evidence.render_image(image_value, self.retrieval_limit)
@@ -99,7 +137,7 @@ class SourceAwareVerifier:
             template = HOLISTIC_EIGHT_WAY if strategy == "holistic" else JOINT_FACTORS
             raw = self.backend.generate(
                 template.format(
-                    image_description=omitted_description,
+                    image_description=description or "[Image description omitted by ablation]",
                     text=text,
                     image_evidence=image_evidence,
                     text_evidence=text_evidence,
@@ -134,10 +172,7 @@ class SourceAwareVerifier:
         for factor in factors:
             if factor == FactorKey("veracity", "image"):
                 raw = self.backend.generate(
-                    IMAGE_VERACITY.format(
-                        image_description=omitted_description,
-                        image_evidence=image_evidence,
-                    ),
+                    self._image_veracity_prompt(description, image_evidence),
                     image_path,
                 )
             elif factor == FactorKey("veracity", "text"):
@@ -146,21 +181,22 @@ class SourceAwareVerifier:
                 )
                 questions = parse_questions(question_raw)
                 raw = self.backend.generate(
-                    TEXT_VERACITY.format(
-                        text=text,
-                        questions="\n".join(questions),
-                        text_evidence=text_evidence,
-                    ),
+                    self._text_veracity_prompt(text, questions, text_evidence),
                     None,
                 )
             elif factor == FactorKey("consistency", "image", "text"):
-                raw = self.backend.generate(
-                    IMAGE_TEXT_CONSISTENCY.format(
-                        image_description=omitted_description,
+                if self.use_image_description:
+                    prompt = IMAGE_TEXT_CONSISTENCY.format(
+                        image_description=description,
                         text=text,
-                    ),
-                    None,
-                )
+                    )
+                else:
+                    prompt = IMAGE_TEXT_CONSISTENCY_NO_DESCRIPTION.format(text=text)
+                # The consistency validator consumes the structured image
+                # description and input text. The raw image is used only by
+                # the description step, matching the image-text instantiation
+                # in the frozen manuscript.
+                raw = self.backend.generate(prompt, None)
             else:
                 raise NotImplementedError(f"no verifier registered for {factor.id}")
             outputs[factor.id] = parse_factor(raw)
@@ -168,18 +204,34 @@ class SourceAwareVerifier:
         if strategy == "separate_deterministic":
             aggregator_raw = ""
             final = {key: value.decision for key, value in outputs.items()}
-        else:
+        elif strategy == "separate_structured":
+            final: dict[str, str] = {}
+            aggregation_outputs: dict[str, str] = {}
+            for factor in factors:
+                result = outputs[factor.id]
+                raw = self.backend.generate(
+                    FACTORWISE_STRUCTURED_AGGREGATION.format(
+                        decision=result.decision,
+                        confidence=result.confidence,
+                        explanation=result.explanation,
+                    ),
+                    None,
+                )
+                aggregation_outputs[factor.id] = raw
+                final[factor.id] = parse_final_decision(raw)
+            aggregator_raw = json.dumps(aggregation_outputs, ensure_ascii=False, sort_keys=True)
+        else:  # Variant E: cross-factor aggregation.
             payload = {
                 factor.display_name: outputs[factor.id].to_dict() for factor in factors
             }
             aggregator_raw = self.backend.generate(
-                STRUCTURED_AGGREGATION.format(
+                CROSS_FACTOR_AGGREGATION.format(
                     factor_outputs=json.dumps(payload, ensure_ascii=False, indent=2),
-                    modalities=", ".join(analysis.modalities),
                 ),
                 None,
             )
             final = parse_structured_decisions(aggregator_raw, factors)
+
         return StructuredPrediction(
             sample_id,
             analysis.modalities,

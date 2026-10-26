@@ -1,4 +1,4 @@
-"""Input analysis and dynamic factor routing (paper Eqs. 8 and 13)."""
+"""Input analysis and dynamic factor routing (paper Eqs. 8-10)."""
 
 from __future__ import annotations
 

@@ -67,6 +67,13 @@ def parse_structured_decisions(raw: str, factors: Iterable[FactorKey]) -> dict[s
     return parsed
 
 
+
+def parse_final_decision(raw: str) -> str:
+    match = re.search(r"(?im)^\s*Final\s+Decision\s*:\s*(T|F|True|False)\s*$", raw)
+    if not match:
+        raise ValueError("factor-wise aggregator output does not contain a valid Final Decision line")
+    return {"TRUE": "T", "FALSE": "F"}.get(match.group(1).upper(), match.group(1).upper())
+
 def parse_label(raw: str) -> str:
     match = re.search(r"(?im)^\s*Label\s*:\s*([TF]{3})\s*$", raw)
     if not match:
