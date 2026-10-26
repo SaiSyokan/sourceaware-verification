@@ -14,6 +14,7 @@ from .finetune import prepare_factor_dataset
 from .io import dump_json, dump_jsonl, load_jsonl
 from .labels import decisions_from_label
 from .llava_backend import LlavaBackend
+from .text_backend import HFCausalLMBackend
 from .manifest import validate_manifest
 from .pipeline import PRIMARY_STRATEGY, STRATEGIES, SourceAwareVerifier
 from .routing import InputAnalyzer, VerificationRouter
@@ -51,6 +52,17 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--output", required=True)
     run.add_argument("--model-path", required=True)
     run.add_argument("--model-base")
+    run.add_argument(
+        "--language-model-path",
+        help=(
+            "Hugging Face causal-LM checkpoint for language-only calls. "
+            "For paper-faithful zero-shot runs, provide the language model "
+            "corresponding to the selected LLaVA scale."
+        ),
+    )
+    run.add_argument("--language-tokenizer-path")
+    run.add_argument("--language-device-map", default="auto")
+    run.add_argument("--language-trust-remote-code", action="store_true")
     run.add_argument("--conversation-mode")
     run.add_argument("--media-root")
     run.add_argument("--strategy", choices=STRATEGIES, default=PRIMARY_STRATEGY)
@@ -102,9 +114,25 @@ def main(argv: list[str] | None = None) -> None:
             max_new_tokens=args.max_new_tokens,
             seed=args.seed,
         )
+        language_backend = (
+            HFCausalLMBackend(
+                args.language_model_path,
+                tokenizer_path=args.language_tokenizer_path,
+                device_map=args.language_device_map,
+                trust_remote_code=args.language_trust_remote_code,
+                temperature=args.temperature,
+                top_p=args.top_p,
+                num_beams=args.num_beams,
+                max_new_tokens=args.max_new_tokens,
+                seed=args.seed,
+            )
+            if args.language_model_path
+            else None
+        )
         verifier = SourceAwareVerifier(
             backend,
             EvidenceStore(args.evidence_root),
+            language_backend=language_backend,
             use_evidence=not args.no_evidence,
             use_image_description=not args.no_image_description,
             retrieval_limit=args.retrieval_limit,
@@ -154,6 +182,10 @@ def main(argv: list[str] | None = None) -> None:
             "use_image_description": not args.no_image_description,
             "retrieval_limit": args.retrieval_limit,
             "model_path": args.model_path,
+            "language_model_path": args.language_model_path,
+            "language_backend": (
+                "hf_causal_lm" if args.language_model_path else "multimodal_backend_text_only_fallback"
+            ),
             "temperature": args.temperature,
             "top_p": args.top_p,
             "num_beams": args.num_beams,

@@ -55,13 +55,19 @@ class SourceAwareVerifier:
         backend: Backend,
         evidence: EvidenceStore,
         *,
+        language_backend: Backend | None = None,
         use_evidence: bool = True,
         use_image_description: bool = True,
         retrieval_limit: int = 3,
     ) -> None:
         if retrieval_limit < 0:
             raise ValueError("retrieval_limit must be non-negative")
+        # ``backend`` is the multimodal backend kept as the first positional
+        # argument for backwards compatibility. Paper-faithful zero-shot runs
+        # should additionally provide ``language_backend`` for text-only calls.
         self.backend = backend
+        self.multimodal_backend = backend
+        self.language_backend = language_backend or backend
         self.evidence = evidence
         self.use_evidence = use_evidence
         self.use_image_description = use_image_description
@@ -122,7 +128,7 @@ class SourceAwareVerifier:
         image_path = self._image_path(row, media_root) if "image" in analysis.modalities else None
         text = str(row.get("text", ""))
         description = (
-            self.backend.generate(IMAGE_DESCRIPTION, image_path)
+            self.multimodal_backend.generate(IMAGE_DESCRIPTION, image_path)
             if image_path and self.use_image_description
             else ""
         )
@@ -135,7 +141,7 @@ class SourceAwareVerifier:
             if analysis.modalities != ("image", "text"):
                 raise ValueError(f"{strategy} is defined only for image-text inputs")
             template = HOLISTIC_EIGHT_WAY if strategy == "holistic" else JOINT_FACTORS
-            raw = self.backend.generate(
+            raw = self.multimodal_backend.generate(
                 template.format(
                     image_description=description or "[Image description omitted by ablation]",
                     text=text,
@@ -171,16 +177,16 @@ class SourceAwareVerifier:
         questions: tuple[str, ...] = ()
         for factor in factors:
             if factor == FactorKey("veracity", "image"):
-                raw = self.backend.generate(
+                raw = self.multimodal_backend.generate(
                     self._image_veracity_prompt(description, image_evidence),
                     image_path,
                 )
             elif factor == FactorKey("veracity", "text"):
-                question_raw = self.backend.generate(
+                question_raw = self.language_backend.generate(
                     VERIFICATION_QUESTIONS.format(text=text), None
                 )
                 questions = parse_questions(question_raw)
-                raw = self.backend.generate(
+                raw = self.language_backend.generate(
                     self._text_veracity_prompt(text, questions, text_evidence),
                     None,
                 )
@@ -196,7 +202,7 @@ class SourceAwareVerifier:
                 # description and input text. The raw image is used only by
                 # the description step, matching the image-text instantiation
                 # in the frozen manuscript.
-                raw = self.backend.generate(prompt, None)
+                raw = self.language_backend.generate(prompt, None)
             else:
                 raise NotImplementedError(f"no verifier registered for {factor.id}")
             outputs[factor.id] = parse_factor(raw)
@@ -209,7 +215,7 @@ class SourceAwareVerifier:
             aggregation_outputs: dict[str, str] = {}
             for factor in factors:
                 result = outputs[factor.id]
-                raw = self.backend.generate(
+                raw = self.language_backend.generate(
                     FACTORWISE_STRUCTURED_AGGREGATION.format(
                         decision=result.decision,
                         confidence=result.confidence,
@@ -224,7 +230,7 @@ class SourceAwareVerifier:
             payload = {
                 factor.display_name: outputs[factor.id].to_dict() for factor in factors
             }
-            aggregator_raw = self.backend.generate(
+            aggregator_raw = self.language_backend.generate(
                 CROSS_FACTOR_AGGREGATION.format(
                     factor_outputs=json.dumps(payload, ensure_ascii=False, indent=2),
                 ),

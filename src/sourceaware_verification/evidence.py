@@ -67,9 +67,19 @@ class EvidenceStore:
                 + "; ".join(str(item.get("description", "")) for item in entities)
             )
         for index, page in enumerate(value.get("pages_with_matching_images", [])[:limit], 1):
+            full_matches = page.get("full_matching_images", []) or []
+            partial_matches = page.get("partial_matching_images", []) or []
+            match_parts = []
+            if full_matches:
+                match_parts.append(f"full/identical matches={len(full_matches)}")
+            if partial_matches:
+                match_parts.append(f"partial/visually related matches={len(partial_matches)}")
+            match_info = "; ".join(match_parts) if match_parts else "not reported"
             parts.append(
                 f"[{index}] Page title: {page.get('page_title', '')}\n"
-                f"Context: {page.get('description') or page.get('surrounding_text', '')}\n"
+                f"Page description: {page.get('description', '')}\n"
+                f"Surrounding text: {page.get('surrounding_text', '')}\n"
+                f"Match information: {match_info}\n"
                 f"URL: {page.get('url', '')}"
             )
         return "\n\n".join(parts) if parts else UNAVAILABLE
