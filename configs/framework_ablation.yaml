@@ -1,10 +1,11 @@
-dataset_split: calibration
-samples: 800
+dataset_split: test
+samples: 8000
 backbone: LLaVA-1.6-34B
 retrieval_top_k: 3
+task_specific_finetuning: false
 variants:
   A: holistic
   B: joint_factors
   C: separate_deterministic
   D: separate_structured
-
+  E: separate_cross_factor
