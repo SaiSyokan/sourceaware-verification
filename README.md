@@ -20,24 +20,42 @@ $$
 F_X = \{v_m \mid m \in M_X\} \cup \{c_{mn} \mid (m,n) \in R_X\}.
 $$
 
-Each active validator returns a decision, confidence, and evidence-grounded explanation. In the proposed method, each factor is then independently refined using only its own structured output before the final factor tuple is deterministically mapped to the image-text label.
+Each active validator returns a decision, confidence, and evidence-grounded explanation. In the proposed method, each factor is then independently refined using only its own structured output before the final factor tuple is deterministically mapped to the image-text label. The diagram below shows the evaluated image-text instantiation: image-based and text-based retrieval remain separated, verification questions are generated only from the text, and the consistency branch does not consume external evidence.
 
 ```mermaid
 flowchart LR
-    X[Multimodal input] --> A[Input analyzer]
+    X[Image-text input] --> A[Input analyzer]
     A --> R[Dynamic factor router]
+
     R --> VI[Image-veracity module]
     R --> VT[Text-veracity module]
     R --> C[Image-text consistency module]
-    X --> E[External evidence retrieval]
-    E --> VI
-    E --> VT
-    VI --> GI[Factor-wise aggregation]
-    VT --> GT[Factor-wise aggregation]
-    C --> GC[Factor-wise aggregation]
-    GI --> Y[Factorized prediction]
+
+    X -- image --> D[Structured image description]
+    X -- image only --> RI[Image-based retrieval]
+    X -- text only --> RT[Text-based retrieval]
+    X -- text --> Q[Verification questions]
+
+    X -- image --> VI
+    D --> VI
+    RI --> VI
+
+    X -- text --> VT
+    Q --> VT
+    RT --> VT
+
+    D --> C
+    X -- text --> C
+
+    VI -- q_i = (d_i, s_i, e_i) --> GI[Factor-wise aggregation]
+    VT -- q_t = (d_t, s_t, e_t) --> GT[Factor-wise aggregation]
+    C -- q_it = (d_it, s_it, e_it) --> GC[Factor-wise aggregation]
+
+    GI --> Y[Refined factor tuple]
     GT --> Y
     GC --> Y
+    Y --> M[Deterministic 8-way mapping]
+    M --> L[Final image-text label]
 ```
 
 The released implementation supports image-only, text-only, and image-text routing paths for code-level validation. The manuscript experiments evaluate the image-text instantiation. The general formulation permits additional modalities, but audio/video validators were not evaluated and are therefore not presented as implemented results.
