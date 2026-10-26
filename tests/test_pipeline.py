@@ -222,3 +222,41 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("[IMAGE DESCRIPTION]", prompt)
         self.assertIn("[INPUT TEXT]", prompt)
         self.assertIsNone(image_path)
+
+class DualBackendRoutingTests(unittest.TestCase):
+    def test_paper_zero_shot_roles_use_multimodal_and_language_backends(self):
+        root = Path(__file__).parents[1] / "examples" / "evidence"
+        multimodal = RecordingBackend()
+        language = RecordingBackend()
+        verifier = SourceAwareVerifier(
+            multimodal,
+            EvidenceStore(root),
+            language_backend=language,
+        )
+        verifier.predict(
+            {
+                "sample_id": "synthetic-image-text",
+                "image_path": "mock.jpg",
+                "text": "synthetic claim",
+            },
+            strategy="separate_structured",
+        )
+
+        multimodal_prompts = "\n".join(prompt for prompt, _ in multimodal.calls)
+        language_prompts = "\n".join(prompt for prompt, _ in language.calls)
+
+        self.assertIn("Role: Generate a structured description", multimodal_prompts)
+        self.assertIn("Role: Verify the factual veracity of the image", multimodal_prompts)
+        self.assertNotIn("Role: Generate focused fact-checking questions", multimodal_prompts)
+        self.assertNotIn("Role: Verify the factual veracity of the input text", multimodal_prompts)
+        self.assertNotIn("Role: Determine whether a salient semantic conflict", multimodal_prompts)
+        self.assertNotIn("Role: Produce the final decision for one verification factor", multimodal_prompts)
+
+        self.assertIn("Role: Generate focused fact-checking questions", language_prompts)
+        self.assertIn("Role: Verify the factual veracity of the input text", language_prompts)
+        self.assertIn("Role: Determine whether a salient semantic conflict", language_prompts)
+        self.assertEqual(
+            language_prompts.count("Role: Produce the final decision for one verification factor"),
+            3,
+        )
+        self.assertTrue(all(image_path is None for _, image_path in language.calls))
