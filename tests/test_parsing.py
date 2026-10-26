@@ -2,6 +2,7 @@ import unittest
 
 from sourceaware_verification.parsing import (
     parse_factor,
+    parse_final_decision,
     parse_questions,
     parse_structured_decisions,
 )
@@ -27,6 +28,9 @@ class ParsingTests(unittest.TestCase):
         factors = [FactorKey("veracity", "image"), FactorKey("veracity", "text")]
         with self.assertRaisesRegex(ValueError, "Text Veracity"):
             parse_structured_decisions("Image Veracity: T", factors)
+
+    def test_factorwise_aggregator_final_decision(self):
+        self.assertEqual(parse_final_decision("Final Decision: F"), "F")
 
     def test_out_of_range_confidence_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "confidence"):
