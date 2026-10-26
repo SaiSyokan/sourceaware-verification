@@ -11,7 +11,7 @@ This repository is aligned to the frozen main manuscript **Source-Aware Multimod
 | Sec. V-A, Eq. (13): factor-wise structured aggregation | `FACTORWISE_STRUCTURED_AGGREGATION`, `separate_structured` |
 | Sec. V-A, Eq. (14): final structured factor prediction | `StructuredPrediction.final_decisions`, `label_from_decisions` |
 | Sec. V-A/B, Eqs. (15)-(18): factor-level supervision and fine-tuning objective | `finetune.py`, `configs/finetune_llava34b_lora.yaml` |
-| Sec. V-B: image/text evidence retrieval and image-text verification modules | `evidence.py`, `prompts.py`, `pipeline.py` |
+| Sec. V-B: image/text evidence retrieval and image-text verification modules, including LVLM/LLM role separation | `evidence.py`, `prompts.py`, `pipeline.py`, `llava_backend.py`, `text_backend.py` |
 | Sec. VI-A: zero-shot, task-specific, and ablation protocols | `docs/DATA.md`, `configs/` |
 | Table III: zero-shot results | `results/table_iii_zero_shot.csv` |
 | Table IV: task-specific training | `results/table_iv_supervised.csv` |

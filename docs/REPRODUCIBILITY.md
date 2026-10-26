@@ -14,7 +14,7 @@ This verifies factor-space construction, modality routing, parser strictness, fa
 ## Full zero-shot path
 
 1. Request OctantFake access and materialize the official split locally.
-2. Install and pin the selected LLaVA implementation/checkpoint.
+2. Install and pin both the selected LLaVA checkpoint and the corresponding language-only checkpoint. For the 34B manuscript setting, the latter is `NousResearch/Nous-Hermes-2-Yi-34B`.
 3. Collect image/text evidence with `k=3` and retain timestamps.
 4. Run `separate_structured` with fixed decoding settings.
 5. Evaluate the normalized predictions; archive predictions, metrics, config, environment, and run metadata together.

@@ -18,6 +18,16 @@ Explanation: a brief input/evidence-grounded reason
 
 The image description is generated once and reused by the image-veracity and image-text consistency modules. The question generator produces at most two questions. The original input text, not those questions and not image information, is the Google Custom Search query.
 
+
+## Backend roles in zero-shot verification
+
+The executable pipeline separates image-conditioned and language-only calls in the same way as the frozen manuscript:
+
+- **LVLM backend:** structured image description and image-veracity verification;
+- **LLM backend:** verification-question generation, text-veracity verification, image-text consistency from the structured image description plus text, and both aggregation variants.
+
+The CLI accepts the LLaVA checkpoint through `--model-path` and the language-only checkpoint through `--language-model-path`. The latter should be supplied for paper-faithful zero-shot runs.
+
 ## Aggregation variants
 
 The proposed method (`separate_structured`, manuscript Variant D) invokes `FACTORWISE_STRUCTURED_AGGREGATION` separately for each active factor. A single invocation receives only:
