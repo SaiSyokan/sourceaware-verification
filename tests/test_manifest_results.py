@@ -44,3 +44,13 @@ class ManifestResultTests(unittest.TestCase):
         self.assertEqual(by_setting["k=0"]["evidence"], "true")
         self.assertEqual(by_setting["k=0"]["k"], "0")
         self.assertEqual(by_setting["w/o evidence"]["evidence"], "false")
+
+    def test_no_stale_pre_revision_result_tables_remain(self):
+        stale = [
+            "table_v_modalities.csv",
+            "table_vi_framework_ablation.csv",
+            "table_vii_module_ablation.csv",
+        ]
+        for name in stale:
+            self.assertFalse((ROOT / "results" / name).exists(), name)
+

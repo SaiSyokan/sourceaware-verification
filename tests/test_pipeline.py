@@ -39,6 +39,15 @@ class MockBackend:
         raise AssertionError(f"unexpected prompt: {prompt[:100]}")
 
 
+class RecordingBackend(MockBackend):
+    def __init__(self):
+        self.calls = []
+
+    def generate(self, prompt: str, image_path: str | Path | None = None) -> str:
+        self.calls.append((prompt, image_path))
+        return super().generate(prompt, image_path)
+
+
 class PipelineTests(unittest.TestCase):
     def setUp(self):
         root = Path(__file__).parents[1] / "examples" / "evidence"
@@ -111,3 +120,105 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(k0.retrieval_limit, 0)
         self.assertTrue(k0.use_evidence)
         self.assertFalse(no_evidence.use_evidence)
+
+    def test_variant_d_aggregates_each_factor_independently(self):
+        root = Path(__file__).parents[1] / "examples" / "evidence"
+        backend = RecordingBackend()
+        verifier = SourceAwareVerifier(backend, EvidenceStore(root))
+        verifier.predict(
+            {
+                "sample_id": "synthetic-image-text",
+                "image_path": "mock.jpg",
+                "text": "synthetic claim",
+            },
+            strategy="separate_structured",
+        )
+        factorwise = [
+            prompt
+            for prompt, _ in backend.calls
+            if "Role: Produce the final decision for one verification factor" in prompt
+        ]
+        cross_factor = [
+            prompt
+            for prompt, _ in backend.calls
+            if "Role: Produce final factor decisions from multiple structured" in prompt
+        ]
+        self.assertEqual(len(factorwise), 3)
+        self.assertEqual(len(cross_factor), 0)
+        for prompt in factorwise:
+            self.assertNotIn("[ACTIVE FACTOR OUTPUTS]", prompt)
+
+    def test_variant_e_is_the_only_cross_factor_aggregation_path(self):
+        root = Path(__file__).parents[1] / "examples" / "evidence"
+        backend = RecordingBackend()
+        verifier = SourceAwareVerifier(backend, EvidenceStore(root))
+        verifier.predict(
+            {
+                "sample_id": "synthetic-image-text",
+                "image_path": "mock.jpg",
+                "text": "synthetic claim",
+            },
+            strategy="separate_cross_factor",
+        )
+        factorwise = [
+            prompt
+            for prompt, _ in backend.calls
+            if "Role: Produce the final decision for one verification factor" in prompt
+        ]
+        cross_factor = [
+            prompt
+            for prompt, _ in backend.calls
+            if "Role: Produce final factor decisions from multiple structured" in prompt
+        ]
+        self.assertEqual(len(factorwise), 0)
+        self.assertEqual(len(cross_factor), 1)
+        self.assertIn('"Image Veracity"', cross_factor[0])
+        self.assertIn('"Text Veracity"', cross_factor[0])
+        self.assertIn('"Image-Text Consistency"', cross_factor[0])
+
+    def test_k0_keeps_evidence_interface_while_no_evidence_removes_it(self):
+        root = Path(__file__).parents[1] / "examples" / "evidence"
+        row = {
+            "sample_id": "synthetic-image-text",
+            "image_path": "mock.jpg",
+            "text": "synthetic claim",
+        }
+
+        k0_backend = RecordingBackend()
+        SourceAwareVerifier(
+            k0_backend, EvidenceStore(root), retrieval_limit=0
+        ).predict(row, strategy="separate_deterministic")
+        k0_prompts = "\n".join(prompt for prompt, _ in k0_backend.calls)
+        self.assertIn("[RETRIEVED IMAGE EVIDENCE]", k0_prompts)
+        self.assertIn("[RETRIEVED TEXTUAL EVIDENCE]", k0_prompts)
+        self.assertIn("retrieval budget k=0", k0_prompts)
+
+        no_evidence_backend = RecordingBackend()
+        SourceAwareVerifier(
+            no_evidence_backend, EvidenceStore(root), use_evidence=False
+        ).predict(row, strategy="separate_deterministic")
+        no_evidence_prompts = "\n".join(prompt for prompt, _ in no_evidence_backend.calls)
+        self.assertNotIn("[RETRIEVED IMAGE EVIDENCE]", no_evidence_prompts)
+        self.assertNotIn("[RETRIEVED TEXTUAL EVIDENCE]", no_evidence_prompts)
+
+    def test_consistency_validator_uses_description_and_text_not_raw_image(self):
+        root = Path(__file__).parents[1] / "examples" / "evidence"
+        backend = RecordingBackend()
+        SourceAwareVerifier(backend, EvidenceStore(root)).predict(
+            {
+                "sample_id": "synthetic-image-text",
+                "image_path": "mock.jpg",
+                "text": "synthetic claim",
+            },
+            strategy="separate_deterministic",
+        )
+        consistency_calls = [
+            (prompt, image_path)
+            for prompt, image_path in backend.calls
+            if "Role: Determine whether a salient semantic conflict" in prompt
+        ]
+        self.assertEqual(len(consistency_calls), 1)
+        prompt, image_path = consistency_calls[0]
+        self.assertIn("[IMAGE DESCRIPTION]", prompt)
+        self.assertIn("[INPUT TEXT]", prompt)
+        self.assertIsNone(image_path)
