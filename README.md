@@ -1,8 +1,8 @@
-# Fine-Grained Multimodal Disinformation Verification
+# Source-Aware Multimodal Disinformation Verification
 
-Companion implementation for **Fine-Grained Multimodal Disinformation Verification via Modality-Level Veracity and Cross-Modal Consistency**.
+Companion implementation for **Source-Aware Multimodal Disinformation Verification via Modality-Level Veracity and Cross-Modal Consistency**.
 
-> Manuscript status: **preparing for submission**. This repository is the `v0.1.0` pre-publication artifact. Interfaces may be refined before the archival release; the factor definitions, prompt protocol, splits, and reported tables are aligned with the current manuscript.
+> Manuscript status: **revision/pre-publication artifact**. The repository is aligned to the frozen main-manuscript method, evaluation protocols, and Tables III-VI. Exact upstream model/evidence artifacts remain subject to the reproducibility notes below.
 
 [Method](#method) · [Installation](#installation) · [Data](#data) · [Zero-shot inference](#zero-shot-inference) · [Fine-tuning](#factor-level-fine-tuning) · [Results](#reported-results) · [Paper alignment](docs/PAPER_ALIGNMENT.md)
 
@@ -20,7 +20,7 @@ $$
 F_X = \{v_m \mid m \in M_X\} \cup \{c_{mn} \mid (m,n) \in R_X\}.
 $$
 
-Each active validator returns a decision, confidence, and evidence-grounded explanation. The structured aggregator jointly reviews these outputs while preserving their factor identities.
+Each active validator returns a decision, confidence, and evidence-grounded explanation. In the proposed method, each factor is then independently refined using only its own structured output before the final factor tuple is deterministically mapped to the image-text label.
 
 ```mermaid
 flowchart LR
@@ -32,13 +32,15 @@ flowchart LR
     X --> E[External evidence retrieval]
     E --> VI
     E --> VT
-    VI --> G[Structured aggregator]
-    VT --> G
-    C --> G
-    G --> Y[Factorized prediction]
+    VI --> GI[Factor-wise aggregation]
+    VT --> GT[Factor-wise aggregation]
+    C --> GC[Factor-wise aggregation]
+    GI --> Y[Factorized prediction]
+    GT --> Y
+    GC --> Y
 ```
 
-The released implementation supports the evaluated image-only, text-only, and image-text settings. The general formulation permits additional modalities, but audio/video validators were not evaluated in the manuscript and are therefore not presented as implemented results.
+The released implementation supports image-only, text-only, and image-text routing paths for code-level validation. The manuscript experiments evaluate the image-text instantiation. The general formulation permits additional modalities, but audio/video validators were not evaluated and are therefore not presented as implemented results.
 
 ## Installation
 
@@ -68,7 +70,7 @@ Request access to [OctantFake on Hugging Face](https://huggingface.co/datasets/S
 
 | Split | Samples | Purpose |
 |---|---:|---|
-| Calibration | 800 | Prompt, parser, retrieval, and inference-time configuration |
+| Development (official calibration split) | 800 | Prompt development, design selection, and retrieval-budget selection |
 | Test | 8,000 | Final zero-shot evaluation |
 
 The supervised protocol uses the original 800-sample calibration split as validation and stratifies the original test split into 7,200 training and 800 held-out test samples (900/100 per class). See [data protocol](docs/DATA.md).
@@ -107,7 +109,7 @@ sourceaware evaluate predictions.jsonl --output metrics.json
 sourceaware evaluate-factors predictions.jsonl --output factor-metrics.json
 ```
 
-The four framework-ablation strategies are `holistic`, `joint_factors`, `separate_deterministic`, and `separate_structured`. Module ablations use `--no-evidence`, `--no-image-description`, and `--retrieval-limit {1,2,3,4,5}`.
+The five framework-ablation strategies are `holistic` (A), `joint_factors` (B), `separate_deterministic` (C), `separate_structured` (D, proposed), and `separate_cross_factor` (E). Module ablations use `--no-evidence`, `--no-image-description`, and `--retrieval-limit {0,1,2,3,4,5}`. `k=0` is distinct from `--no-evidence`: it retains the evidence-enabled verification path but provides zero retrieved evidence instances.
 
 ## Factor-level fine-tuning
 
@@ -119,11 +121,11 @@ sourceaware prepare-finetune \
   --output train.factor-instances.jsonl
 ```
 
-The paper uses a shared LLaVA-1.6-34B backbone, LoRA, a frozen vision encoder, AdamW, learning rate `2e-5`, effective batch size `64`, LoRA rank `16`, LoRA dropout `0.05`, and at most three epochs. External retrieval is not used during fine-tuning. Exact documented settings and the fields still requiring confirmation from the original run are in [training protocol](docs/TRAINING.md).
+The frozen main manuscript specifies a shared LLaVA-1.6-34B backbone, LoRA adaptation, a frozen vision encoder, factor-level supervision, and checkpoint selection by validation macro-F1. External retrieval is not used during fine-tuning. Additional training values carried by this pre-publication artifact must be checked against the original training command/log before they are treated as archival settings; see [training protocol](docs/TRAINING.md).
 
 ## Reported results
 
-Machine-readable transcriptions of manuscript Tables III-VII are in [`results/`](results/README.md). They are reference records, not regenerated claims. Raw per-sample predictions and model checkpoints must come from the original experiment runs and are not fabricated by this package.
+Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](results/README.md). They are reference records, not regenerated claims. Raw per-sample predictions and model checkpoints must come from the original experiment runs and are not fabricated by this package.
 
 ## Repository layout
 
@@ -135,7 +137,7 @@ Machine-readable transcriptions of manuscript Tables III-VII are in [`results/`]
 ├── results/                 # Manuscript table transcriptions
 ├── src/sourceaware_verification/
 │   ├── routing.py           # Analyzer and F_X construction
-│   ├── prompts.py           # Appendix B prompt protocol
+│   ├── prompts.py           # Exact validator and aggregation prompts
 │   ├── evidence.py          # Google retrieval adapters and evidence store
 │   ├── pipeline.py          # Factor modules and aggregation
 │   ├── finetune.py          # Factor-specific supervision conversion

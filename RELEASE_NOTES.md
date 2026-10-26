@@ -1,18 +1,20 @@
 # v0.1.0
 
-Initial pre-publication artifact for the manuscript **Fine-Grained Multimodal Disinformation Verification via Modality-Level Veracity and Cross-Modal Consistency**.
+Pre-publication artifact for the manuscript **Source-Aware Multimodal Disinformation Verification via Modality-Level Veracity and Cross-Modal Consistency**.
 
 ## Included
 
 - dynamic modality analysis and source-aware factor routing;
 - independent image-veracity, text-veracity, and image-text consistency modules;
-- structured aggregation and all four framework-level ablation paths;
-- Appendix B prompt protocol and strict output parsing;
+- factor-wise structured aggregation for the proposed method and cross-factor aggregation as a separate ablation;
+- all five framework-level ablation paths (A-E);
+- exact prompt protocol and strict output parsing;
 - Google Vision Web Detection and Google Custom Search evidence adapters;
+- distinct implementations of `w/o evidence` and evidence-enabled `k=0`;
 - factor-level fine-tuning instance generation;
 - image-text and factor-level evaluation;
-- paper-aligned configurations and Tables III-VII as CSV;
-- synthetic examples and 19 offline tests.
+- paper-aligned configurations and Tables III-VI as CSV;
+- synthetic examples and offline tests.
 
 ## External resources
 

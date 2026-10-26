@@ -6,12 +6,12 @@ This repository is a pre-publication research artifact intended to support evalu
 
 - source-aware input analysis and factor routing;
 - image-veracity, text-veracity, and image-text consistency prompt paths;
-- structured aggregation and deterministic ablation path;
+- factor-wise structured aggregation, cross-factor aggregation ablation, and deterministic mapping path;
 - Google Vision Web Detection and Google Custom Search adapters;
 - strict output parsing and failure accounting;
 - OctantFake manifest validation and factor-level metrics;
 - factor-specific fine-tuning instance generation;
-- paper-aligned configurations and reported aggregate tables;
+- paper-aligned configurations and reported aggregate Tables III-VI;
 - synthetic examples and offline continuous-integration tests.
 
 ## Intentionally external
