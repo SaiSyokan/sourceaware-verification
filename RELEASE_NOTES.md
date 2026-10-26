@@ -14,7 +14,7 @@ Pre-publication artifact for the manuscript **Source-Aware Multimodal Disinforma
 - distinct implementations of `w/o evidence` and evidence-enabled `k=0`;
 - factor-level fine-tuning instance generation and documented supervision templates;
 - image-text and factor-level evaluation;
-- paper-aligned configurations and Tables III-VI as CSV;
+- paper-aligned inference/ablation configurations, a recorded fine-tuning configuration, and Tables III-VI as CSV;
 - source-specific dataset license/usage checklist;
 - synthetic examples and offline tests.
 

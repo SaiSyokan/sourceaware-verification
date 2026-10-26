@@ -163,7 +163,7 @@ Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](
 
 ```text
 .
-├── configs/                 # Paper-aligned inference/training settings
+├── configs/                 # Paper-aligned inference/ablation settings + recorded fine-tuning config
 ├── docs/                    # Prompts, retrieval, training, licenses, data, baselines, and paper alignment
 ├── examples/                # Synthetic, non-benchmark examples
 ├── results/                 # Manuscript table transcriptions
