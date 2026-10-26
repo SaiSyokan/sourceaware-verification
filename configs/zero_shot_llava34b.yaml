@@ -4,12 +4,15 @@ dataset:
   version: v1.0.0
   calibration_samples: 800
   test_samples: 8000
-model:
-  family: LLaVA-1.6
-  checkpoint: liuhaotian/llava-v1.6-34b
-  language_model: NousResearch/Nous-Hermes-2-Yi-34B
-  scale: 34B
-  model_path: null
+models:
+  multimodal:
+    family: LLaVA-1.6
+    checkpoint: liuhaotian/llava-v1.6-34b
+    scale: 34B
+  language:
+    family: causal_lm
+    checkpoint: NousResearch/Nous-Hermes-2-Yi-34B
+    scale: 34B
 inference:
   strategy: separate_structured
   temperature: 0.0

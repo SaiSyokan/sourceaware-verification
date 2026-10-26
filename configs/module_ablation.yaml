@@ -1,6 +1,8 @@
 dataset_split: test
 samples: 8000
-backbone: LLaVA-1.6-34B
+models:
+  multimodal: LLaVA-1.6-34B
+  language: Nous-Hermes-2-Yi-34B
 strategy: separate_structured
 task_specific_finetuning: false
 variants:
