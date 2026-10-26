@@ -1,6 +1,0 @@
-variant,description,f1,precision,recall
-A,Holistic 8-way prediction,24.9,29.4,26.2
-B,Joint-factor prediction,26.7,30.7,28.5
-C,Separate factor checks + deterministic aggregation,30.7,34.3,29.2
-D,Separate factor checks + structured aggregation,31.6,36.9,30.4
-
