@@ -30,3 +30,8 @@ Do not commit downloaded media to this repository.
 ## Evidence representation
 
 Image-based retrieval records best-guess labels, web entities, pages containing full or partial visual matches, page titles, page descriptions, surrounding page text, and match information when available. The verifier receives these fields as supporting context; retrieval output is not treated as ground truth. Text-based retrieval retains the original query, page titles, snippets, and links.
+
+
+## Licenses and redistribution
+
+Source-specific dataset licenses and usage conditions are summarized in [`DATA_LICENSES.md`](DATA_LICENSES.md). Do not assume that a code or annotation license grants redistribution rights over underlying third-party media.

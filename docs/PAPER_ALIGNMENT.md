@@ -10,8 +10,8 @@ This repository is aligned to the frozen main manuscript **Source-Aware Multimod
 | Sec. V-A, Eq. (12): verifier output `q_f=(d_f,s_f,e_f)` | `FactorResult`, factor validators in `pipeline.py` |
 | Sec. V-A, Eq. (13): factor-wise structured aggregation | `FACTORWISE_STRUCTURED_AGGREGATION`, `separate_structured` |
 | Sec. V-A, Eq. (14): final structured factor prediction | `StructuredPrediction.final_decisions`, `label_from_decisions` |
-| Sec. V-A/B, Eqs. (15)-(18): factor-level supervision and fine-tuning objective | `finetune.py`, `configs/finetune_llava34b_lora.yaml` |
-| Sec. V-B: image/text evidence retrieval and image-text verification modules, including LVLM/LLM role separation | `evidence.py`, `prompts.py`, `pipeline.py`, `llava_backend.py`, `text_backend.py` |
+| Sec. V-A/B, Eqs. (15)-(18): factor-level supervision and fine-tuning objective | `finetune.py`, `configs/finetune_llava34b_lora.yaml`, `docs/TRAINING.md` |
+| Sec. V-B: image/text evidence retrieval and image-text verification modules, including LVLM/LLM role separation | `evidence.py`, `prompts.py`, `pipeline.py`, `llava_backend.py`, `text_backend.py`, `docs/PROMPTS.md`, `docs/RETRIEVAL.md` |
 | Sec. VI-A: zero-shot, task-specific, and ablation protocols | `docs/DATA.md`, `configs/` |
 | Table III: zero-shot results | `results/table_iii_zero_shot.csv` |
 | Table IV: task-specific training | `results/table_iv_supervised.csv` |
@@ -31,3 +31,15 @@ The executable strategy names map to manuscript variants as follows:
 ## Repository scope
 
 The repository intentionally does not reimplement OctantFake source harmonization, reliability-control construction, or coverage-completion tooling. The scientific mapping rules are documented in the Supplemental Material; dataset construction/release tooling remains in the companion OctantFake/WWW artifact linked from the main README.
+
+
+## Supplemental implementation material migrated to the repository
+
+Implementation-oriented material that is not needed for the scientific argument of the Supplemental Material is maintained here for reproducibility:
+
+- normalized Prompts 1-6 and the common output protocol: [`PROMPTS.md`](PROMPTS.md);
+- image/text retrieval, evidence fields, query construction, and `k=0` semantics: [`RETRIEVAL.md`](RETRIEVAL.md);
+- factor-specific fine-tuning instance formats and training notes: [`TRAINING.md`](TRAINING.md);
+- source-specific license/usage checklist: [`DATA_LICENSES.md`](DATA_LICENSES.md).
+
+Scientific source-mapping rules, CLIP-based reliability control, and coverage-completion justification remain in the Supplemental Material rather than being duplicated here.
