@@ -9,12 +9,13 @@ Pre-publication artifact for the manuscript **Source-Aware Multimodal Disinforma
 - explicit LVLM/LLM backend separation for the paper-faithful zero-shot path;
 - factor-wise structured aggregation for the proposed method and cross-factor aggregation as a separate ablation;
 - all five framework-level ablation paths (A-E);
-- exact prompt protocol and strict output parsing;
-- Google Vision Web Detection and Google Custom Search evidence adapters, including page-description, surrounding-text, and visual-match metadata rendering;
+- exact prompt protocol and strict output parsing, with complete prompt documentation in `docs/PROMPTS.md`;
+- Google Vision Web Detection and Google Custom Search evidence adapters, including page-description, surrounding-text, and visual-match metadata rendering, documented in `docs/RETRIEVAL.md`;
 - distinct implementations of `w/o evidence` and evidence-enabled `k=0`;
-- factor-level fine-tuning instance generation;
+- factor-level fine-tuning instance generation and documented supervision templates;
 - image-text and factor-level evaluation;
 - paper-aligned configurations and Tables III-VI as CSV;
+- source-specific dataset license/usage checklist;
 - synthetic examples and offline tests.
 
 ## External resources

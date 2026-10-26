@@ -4,13 +4,24 @@ Companion implementation for **Source-Aware Multimodal Disinformation Verificati
 
 > Manuscript status: **revision/pre-publication artifact**. The repository is aligned to the frozen main-manuscript method, evaluation protocols, and Tables III-VI. Exact upstream model/evidence artifacts remain subject to the reproducibility notes below.
 
-[Method](#method) · [Installation](#installation) · [Data](#data) · [Zero-shot inference](#zero-shot-inference) · [Fine-tuning](#factor-level-fine-tuning) · [Results](#reported-results) · [Paper alignment](docs/PAPER_ALIGNMENT.md)
+[Method](#method) · [Installation](#installation) · [Data](#data) · [Prompts](docs/PROMPTS.md) · [Retrieval](docs/RETRIEVAL.md) · [Fine-tuning](docs/TRAINING.md) · [Licenses](docs/DATA_LICENSES.md) · [Results](#reported-results) · [Paper alignment](docs/PAPER_ALIGNMENT.md)
 
 ## What belongs here
 
 This repository contains the **journal-extension verification code**: modality analysis, dynamic routing, factor-level validation, evidence interfaces, structured aggregation, task-specific factor-instance generation, evaluation, and paper-aligned experiment records.
 
 OctantFake construction and release tooling remain in the separate [WWW repository](https://github.com/SaiSyokan/8way-multimodal-disinformation). The gated dataset is hosted at [Syokan/OctantFake](https://huggingface.co/datasets/Syokan/OctantFake). Dataset media, third-party model weights, credentials, and copyrighted web evidence are intentionally not duplicated here.
+
+## Implementation documentation
+
+Implementation-oriented material that would otherwise lengthen the Supplemental Material is maintained here:
+
+- [Prompt protocol](docs/PROMPTS.md): normalized Prompts 1-6, validator outputs, aggregation, and ablation prompt semantics;
+- [Retrieval and evidence](docs/RETRIEVAL.md): image/text queries, retained evidence fields, organization, and retrieval-budget semantics;
+- [Factor-level training](docs/TRAINING.md): supervision-instance formats and fine-tuning notes;
+- [Dataset licenses and usage conditions](docs/DATA_LICENSES.md): source-specific provenance and redistribution checklist.
+
+The Supplemental Material remains the scientific source for operational examples and the detailed dataset-construction rationale (source mappings, reliability control, and coverage completion).
 
 ## Method
 
@@ -108,7 +119,7 @@ sourceaware collect-image-evidence --manifest manifest.jsonl --output evidence -
 sourceaware collect-text-evidence --manifest manifest.jsonl --output evidence --limit 3
 ```
 
-Image evidence preserves best-guess labels, web entities, page titles, page descriptions, surrounding page text, and full/partial visual-match information when available. Text evidence preserves result titles, snippets, and links. Evidence is timestamped and should be treated as a time-sensitive run artifact. Raw evidence is ignored by Git to avoid accidental redistribution.
+Image evidence preserves best-guess labels, web entities, page titles, page descriptions, surrounding/page text, and full/partial visual-match information when available. Text evidence preserves result titles, snippets, and links. Evidence is timestamped and should be treated as a time-sensitive run artifact. Raw evidence is ignored by Git to avoid accidental redistribution. See the detailed [retrieval and evidence protocol](docs/RETRIEVAL.md).
 
 ## Zero-shot inference
 
@@ -142,7 +153,7 @@ sourceaware prepare-finetune \
   --output train.factor-instances.jsonl
 ```
 
-The frozen main manuscript specifies a shared LLaVA-1.6-34B backbone, LoRA adaptation, a frozen vision encoder, factor-level supervision, and checkpoint selection by validation macro-F1. External retrieval is not used during fine-tuning. Additional training values carried by this pre-publication artifact must be checked against the original training command/log before they are treated as archival settings; see [training protocol](docs/TRAINING.md).
+The frozen main manuscript specifies a shared LLaVA-1.6-34B backbone, LoRA adaptation, a frozen vision encoder, factor-level supervision, and checkpoint selection by validation macro-F1. External retrieval is not used during fine-tuning. Additional training values carried by this pre-publication artifact must be checked against the original training command/log before they are treated as archival settings; see the [factor-level training protocol](docs/TRAINING.md). Exact zero-shot prompt templates are documented separately in [Prompt Protocol](docs/PROMPTS.md).
 
 ## Reported results
 
@@ -153,7 +164,7 @@ Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](
 ```text
 .
 ├── configs/                 # Paper-aligned inference/training settings
-├── docs/                    # Method, prompts, data, baselines, and paper alignment
+├── docs/                    # Prompts, retrieval, training, licenses, data, baselines, and paper alignment
 ├── examples/                # Synthetic, non-benchmark examples
 ├── results/                 # Manuscript table transcriptions
 ├── src/sourceaware_verification/
@@ -170,7 +181,7 @@ Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](
 
 ## Responsible use
 
-Outputs are evidence-budget-dependent verification decisions, not guarantees of truth. A `T` decision means that no violation was detected under the available evidence and fixed verification setting. Review the dataset terms and [third-party notice](THIRD_PARTY.md) before use.
+Outputs are evidence-budget-dependent verification decisions, not guarantees of truth. A `T` decision means that no violation was detected under the available evidence and fixed verification setting. Review the [dataset license/usage checklist](docs/DATA_LICENSES.md) and [third-party notice](THIRD_PARTY.md) before use.
 
 ## License
 
