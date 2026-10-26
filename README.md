@@ -35,38 +35,38 @@ Each active validator returns a decision, confidence, and evidence-grounded expl
 
 ```mermaid
 flowchart LR
-    X[Image-text input] --> A[Input analyzer]
-    A --> R[Dynamic factor router]
+    X["Image-text input"] --> A["Input analyzer"]
+    A --> R["Dynamic factor router"]
 
-    R --> VI[Image-veracity module<br/>(LVLM)]
-    R --> VT[Text-veracity module<br/>(LLM)]
-    R --> C[Image-text consistency module<br/>(LLM)]
+    R --> VI["Image-veracity module (LVLM)"]
+    R --> VT["Text-veracity module (LLM)"]
+    R --> C["Image-text consistency module (LLM)"]
 
-    X -- image --> D[Structured image description<br/>(LVLM)]
-    X -- image only --> RI[Image-based retrieval]
-    X -- text only --> RT[Text-based retrieval]
-    X -- text --> Q[Verification questions<br/>(LLM)]
+    X -->|image| D["Structured image description (LVLM)"]
+    X -->|image only| RI["Image-based retrieval"]
+    X -->|text only| RT["Text-based retrieval"]
+    X -->|text| Q["Verification questions (LLM)"]
 
-    X -- image --> VI
+    X -->|image| VI
     D --> VI
     RI --> VI
 
-    X -- text --> VT
+    X -->|text| VT
     Q --> VT
     RT --> VT
 
     D --> C
-    X -- text --> C
+    X -->|text| C
 
-    VI -- q_i = (d_i, s_i, e_i) --> GI[Factor-wise aggregation<br/>(LLM)]
-    VT -- q_t = (d_t, s_t, e_t) --> GT[Factor-wise aggregation<br/>(LLM)]
-    C -- q_it = (d_it, s_it, e_it) --> GC[Factor-wise aggregation<br/>(LLM)]
+    VI --> GI["Factor-wise aggregation (LLM)"]
+    VT --> GT["Factor-wise aggregation (LLM)"]
+    C --> GC["Factor-wise aggregation (LLM)"]
 
-    GI --> Y[Refined factor tuple]
+    GI --> Y["Refined factor tuple"]
     GT --> Y
     GC --> Y
-    Y --> M[Deterministic 8-way mapping]
-    M --> L[Final image-text label]
+    Y --> M["Deterministic 8-way mapping"]
+    M --> L["Final image-text label"]
 ```
 
 The released implementation supports image-only, text-only, and image-text routing paths for code-level validation. The manuscript experiments evaluate the image-text instantiation. The general formulation permits additional modalities, but audio/video validators were not evaluated and are therefore not presented as implemented results.
