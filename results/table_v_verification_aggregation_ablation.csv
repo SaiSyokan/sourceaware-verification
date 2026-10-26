@@ -1,0 +1,6 @@
+variant,description,macro_f1
+A,Holistic 8-way prediction,23.3
+B,Joint factor prediction (single call),25.4
+C,Separate factor verification with deterministic mapping,29.3
+D,Factor-wise structured aggregation,30.1
+E,Cross-factor aggregation,30.0
