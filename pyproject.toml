@@ -19,7 +19,7 @@ dependencies = []
 
 [project.optional-dependencies]
 evidence = ["google-cloud-vision>=3.7", "requests>=2.31"]
-inference = ["Pillow>=10.0", "torch>=2.1"]
+inference = ["Pillow>=10.0", "torch>=2.1", "transformers>=4.42", "accelerate>=0.33"]
 training = ["datasets>=3.0", "peft>=0.12", "transformers>=4.42"]
 dev = []
 

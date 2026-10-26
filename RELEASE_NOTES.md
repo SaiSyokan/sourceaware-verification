@@ -6,10 +6,11 @@ Pre-publication artifact for the manuscript **Source-Aware Multimodal Disinforma
 
 - dynamic modality analysis and source-aware factor routing;
 - independent image-veracity, text-veracity, and image-text consistency modules;
+- explicit LVLM/LLM backend separation for the paper-faithful zero-shot path;
 - factor-wise structured aggregation for the proposed method and cross-factor aggregation as a separate ablation;
 - all five framework-level ablation paths (A-E);
 - exact prompt protocol and strict output parsing;
-- Google Vision Web Detection and Google Custom Search evidence adapters;
+- Google Vision Web Detection and Google Custom Search evidence adapters, including page-description, surrounding-text, and visual-match metadata rendering;
 - distinct implementations of `w/o evidence` and evidence-enabled `k=0`;
 - factor-level fine-tuning instance generation;
 - image-text and factor-level evaluation;

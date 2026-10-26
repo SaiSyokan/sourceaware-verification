@@ -27,14 +27,14 @@ flowchart LR
     X[Image-text input] --> A[Input analyzer]
     A --> R[Dynamic factor router]
 
-    R --> VI[Image-veracity module]
-    R --> VT[Text-veracity module]
-    R --> C[Image-text consistency module]
+    R --> VI[Image-veracity module<br/>(LVLM)]
+    R --> VT[Text-veracity module<br/>(LLM)]
+    R --> C[Image-text consistency module<br/>(LLM)]
 
-    X -- image --> D[Structured image description]
+    X -- image --> D[Structured image description<br/>(LVLM)]
     X -- image only --> RI[Image-based retrieval]
     X -- text only --> RT[Text-based retrieval]
-    X -- text --> Q[Verification questions]
+    X -- text --> Q[Verification questions<br/>(LLM)]
 
     X -- image --> VI
     D --> VI
@@ -47,9 +47,9 @@ flowchart LR
     D --> C
     X -- text --> C
 
-    VI -- q_i = (d_i, s_i, e_i) --> GI[Factor-wise aggregation]
-    VT -- q_t = (d_t, s_t, e_t) --> GT[Factor-wise aggregation]
-    C -- q_it = (d_it, s_it, e_it) --> GC[Factor-wise aggregation]
+    VI -- q_i = (d_i, s_i, e_i) --> GI[Factor-wise aggregation<br/>(LLM)]
+    VT -- q_t = (d_t, s_t, e_t) --> GT[Factor-wise aggregation<br/>(LLM)]
+    C -- q_it = (d_it, s_it, e_it) --> GC[Factor-wise aggregation<br/>(LLM)]
 
     GI --> Y[Refined factor tuple]
     GT --> Y
@@ -80,7 +80,7 @@ Install optional components only when needed:
 python -m pip install -e '.[evidence,inference]'
 ```
 
-LLaVA is not vendored. Install a compatible upstream LLaVA implementation before selecting the LLaVA backend. See [installation and environment notes](docs/INSTALLATION.md).
+LLaVA is not vendored. Install a compatible upstream LLaVA implementation for image-conditioned calls. Language-only zero-shot calls use a Hugging Face causal-LM backend. See [installation and environment notes](docs/INSTALLATION.md).
 
 ## Data
 
@@ -108,7 +108,7 @@ sourceaware collect-image-evidence --manifest manifest.jsonl --output evidence -
 sourceaware collect-text-evidence --manifest manifest.jsonl --output evidence --limit 3
 ```
 
-Evidence is timestamped and should be treated as a time-sensitive run artifact. Raw evidence is ignored by Git to avoid accidental redistribution.
+Image evidence preserves best-guess labels, web entities, page titles, page descriptions, surrounding page text, and full/partial visual-match information when available. Text evidence preserves result titles, snippets, and links. Evidence is timestamped and should be treated as a time-sensitive run artifact. Raw evidence is ignored by Git to avoid accidental redistribution.
 
 ## Zero-shot inference
 
@@ -120,6 +120,7 @@ sourceaware run \
   --media-root /path/to/OctantFake \
   --evidence-root evidence \
   --model-path /path/to/llava-v1.6-34b \
+  --language-model-path NousResearch/Nous-Hermes-2-Yi-34B \
   --strategy separate_structured \
   --output predictions.jsonl
 
@@ -128,6 +129,8 @@ sourceaware evaluate-factors predictions.jsonl --output factor-metrics.json
 ```
 
 The five framework-ablation strategies are `holistic` (A), `joint_factors` (B), `separate_deterministic` (C), `separate_structured` (D, proposed), and `separate_cross_factor` (E). Module ablations use `--no-evidence`, `--no-image-description`, and `--retrieval-limit {0,1,2,3,4,5}`. `k=0` is distinct from `--no-evidence`: it retains the evidence-enabled verification path but provides zero retrieved evidence instances.
+
+For the paper-faithful zero-shot path, image description and image-veracity calls use the LLaVA/LVLM backend, while verification-question generation, text veracity, image-text consistency, and factor aggregation use the language-only backend. If `--language-model-path` is omitted, the CLI falls back to using the multimodal backend without images for language-only calls; that compatibility fallback is not the canonical paper configuration.
 
 ## Factor-level fine-tuning
 
@@ -157,6 +160,8 @@ Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](
 │   ├── routing.py           # Analyzer and F_X construction
 │   ├── prompts.py           # Exact validator and aggregation prompts
 │   ├── evidence.py          # Google retrieval adapters and evidence store
+│   ├── llava_backend.py     # LVLM backend for image-conditioned calls
+│   ├── text_backend.py      # LLM backend for language-only calls
 │   ├── pipeline.py          # Factor modules and aggregation
 │   ├── finetune.py          # Factor-specific supervision conversion
 │   └── evaluation.py        # 8-way and factor-level metrics
