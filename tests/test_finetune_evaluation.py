@@ -4,10 +4,16 @@ import unittest
 from pathlib import Path
 
 from sourceaware_verification.evaluation import evaluate_factor_predictions, evaluate_predictions
-from sourceaware_verification.finetune import factor_instances, prepare_factor_dataset
+from sourceaware_verification.finetune import INSTRUCTIONS, factor_instances, prepare_factor_dataset
 
 
 class FinetuneEvaluationTests(unittest.TestCase):
+    def test_consistency_instruction_matches_protocol(self):
+        self.assertIn(
+            "salient semantic conflict",
+            INSTRUCTIONS["consistency:image:text"],
+        )
+
     def test_each_pair_produces_three_factor_instances(self):
         rows = factor_instances(
             {"sample_id": "x", "image_path": "x.jpg", "text": "claim", "label": "TFF"}
