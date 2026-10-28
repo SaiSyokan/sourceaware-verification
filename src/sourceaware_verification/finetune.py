@@ -12,7 +12,11 @@ from .labels import decisions_from_label
 INSTRUCTIONS = {
     "veracity:image": "Determine whether the image contains a factual violation according to the operational definition of image veracity.",
     "veracity:text": "Determine whether the text contains a factual violation according to the operational definition of text veracity.",
-    "consistency:image:text": "Determine whether the image and text are semantically consistent, without judging their standalone factual veracity.",
+    "consistency:image:text": (
+        "Determine whether a salient semantic conflict is present between the image "
+        "and text. Return F if a conflict is present and T otherwise, without judging "
+        "their standalone factual veracity."
+    ),
 }
 
 
