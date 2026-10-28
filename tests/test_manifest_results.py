@@ -19,7 +19,23 @@ class ManifestResultTests(unittest.TestCase):
     def test_table_iii_transcription_contains_reported_primary_result(self):
         with (ROOT / "results" / "table_iii_zero_shot.csv").open(encoding="utf-8") as stream:
             rows = list(csv.DictReader(stream))
-        self.assertEqual(len(rows), 20)
+        self.assertEqual(len(rows), 25)
+        self.assertEqual(
+            {row["approach"] for row in rows if row["model"] == "GPT-6.1 Sol"},
+            {
+                "SNIFFER", "FKA-Owl", "DEFAME", "MMD-Agent",
+                "Source-Aware Framework (Ours)",
+            },
+        )
+        gpt6_ours = [
+            row for row in rows
+            if row["model"] == "GPT-6.1 Sol"
+            and row["approach"] == "Source-Aware Framework (Ours)"
+        ]
+        self.assertEqual(
+            (gpt6_ours[0]["f1"], gpt6_ours[0]["precision"], gpt6_ours[0]["recall"]),
+            ("64.0", "69.2", "61.9"),
+        )
         primary = [
             row
             for row in rows
