@@ -1,3 +1,9 @@
+# Manuscript alignment update (2026-10-28)
+
+- Added the five GPT-6.1 Sol results from the revised manuscript's Table III and aligned the related documentation and result checks.
+- Matched the image-text consistency fine-tuning instruction to the documented protocol, fixing the local-source offline test failure.
+- No new proprietary inference backend, original per-sample predictions, or dataset construction process is introduced in this update.
+
 # v0.1.0
 
 Pre-publication artifact for the manuscript **Source-Aware Multimodal Disinformation Verification via Modality-Level Veracity and Cross-Modal Consistency**.

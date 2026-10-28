@@ -157,7 +157,7 @@ The frozen main manuscript specifies a shared LLaVA-1.6-34B backbone, LoRA adapt
 
 ## Reported results
 
-Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](results/README.md). They are reference records, not regenerated claims. Raw per-sample predictions and model checkpoints must come from the original experiment runs and are not fabricated by this package.
+Machine-readable transcriptions of manuscript Tables III-VI are in [`results/`](results/README.md). Table III includes five approaches each at 7B, 13B, 34B, GPT-4V, and GPT-6.1 Sol; the proposed framework reaches 64.0% macro-F1 with GPT-6.1 Sol. These are reported results, not regenerated claims. The included inference CLI supports the LLaVA/Hugging Face backend path, **not** direct GPT-4V or GPT-6.1 Sol inference. Raw per-sample predictions and model checkpoints must come from the original experiment runs and are not fabricated by this package.
 
 ## Repository layout
 
