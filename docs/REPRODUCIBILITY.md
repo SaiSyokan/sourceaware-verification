@@ -19,6 +19,10 @@ This verifies factor-space construction, modality routing, parser strictness, fa
 4. Run `separate_structured` with the normalized prompts in [`PROMPTS.md`](PROMPTS.md) and fixed decoding settings.
 5. Evaluate the normalized predictions; archive predictions, metrics, config, environment, and run metadata together.
 
+## Proprietary-model result records
+
+Table III also reports five approaches under each of GPT-4V and GPT-6.1 Sol. These rows are transcribed in [`../results/table_iii_zero_shot.csv`](../results/table_iii_zero_shot.csv). The repository does not contain the original proprietary-model API/ChatGPT run records, sample-level predictions, or an executable backend for those models; the LLaVA/Hugging Face example above does not reproduce their results.
+
 ## Full supervised path
 
 1. Use the fixed 7,200/800/800 train/validation/held-out protocol.

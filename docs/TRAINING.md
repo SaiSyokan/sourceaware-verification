@@ -26,7 +26,7 @@ is converted into three factor-specific supervision instances. External retrieva
 |---|---|---|---|
 | Image veracity | input image | Determine whether the image contains a factual violation according to the operational definition of image veracity. | `v_i` |
 | Text veracity | input text | Determine whether the text contains a factual violation according to the operational definition of text veracity. | `v_t` |
-| Image-text consistency | input image + text | Determine whether a salient semantic conflict is present between the image and text, without judging their standalone factual veracity. | `c_it` |
+| Image-text consistency | input image + text | Determine whether a salient semantic conflict is present between the image and text. Return F if a conflict is present and T otherwise, without judging their standalone factual veracity. | `c_it` |
 
 The executable instruction strings are defined in [`src/sourceaware_verification/finetune.py`](../src/sourceaware_verification/finetune.py).
 
@@ -50,7 +50,7 @@ Target: T or F, according to v_t.
 
 ```text
 Input: [INPUT IMAGE] + [INPUT TEXT]
-Instruction: Determine whether a salient semantic conflict is present between the image and text, without judging their standalone factual veracity.
+Instruction: Determine whether a salient semantic conflict is present between the image and text. Return F if a conflict is present and T otherwise, without judging their standalone factual veracity.
 Target: T or F, according to c_it.
 ```
 

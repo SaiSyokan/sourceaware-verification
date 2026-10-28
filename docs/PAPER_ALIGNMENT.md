@@ -13,7 +13,7 @@ This repository is aligned to the frozen main manuscript **Source-Aware Multimod
 | Sec. V-A/B, Eqs. (15)-(18): factor-level supervision and fine-tuning objective | `finetune.py`, `configs/finetune_llava34b_lora.yaml`, `docs/TRAINING.md` |
 | Sec. V-B: image/text evidence retrieval and image-text verification modules, including LVLM/LLM role separation | `evidence.py`, `prompts.py`, `pipeline.py`, `llava_backend.py`, `text_backend.py`, `docs/PROMPTS.md`, `docs/RETRIEVAL.md` |
 | Sec. VI-A: zero-shot, task-specific, and ablation protocols | `docs/DATA.md`, `configs/` |
-| Table III: zero-shot results | `results/table_iii_zero_shot.csv` |
+| Table III: zero-shot results (7B, 13B, 34B, GPT-4V, GPT-6.1 Sol) | `results/table_iii_zero_shot.csv` |
 | Table IV: task-specific training | `results/table_iv_supervised.csv` |
 | Table V: verification and aggregation variants A-E | `configs/framework_ablation.yaml`, `results/table_v_verification_aggregation_ablation.csv` |
 | Table VI: verification components and retrieval budget | `configs/module_ablation.yaml`, `results/table_vi_components_retrieval_ablation.csv` |
@@ -27,6 +27,8 @@ The executable strategy names map to manuscript variants as follows:
 - **C** `separate_deterministic`: three independent factor-specific verifier calls; only their initial binary decisions are used.
 - **D** `separate_structured`: the proposed method. Each factor is independently refined using only its own `(decision, confidence, explanation)` tuple, then deterministically mapped to the 8-way label.
 - **E** `separate_cross_factor`: the same factor-specific verifier outputs as C/D, but aggregation has access to outputs from the other factors.
+
+The CSV for Table III includes proprietary GPT-4V and GPT-6.1 Sol results as manuscript transcriptions. The available CLI backends are LLaVA and Hugging Face language models; there is no implementation here for directly calling the proprietary models or replaying their original runs.
 
 ## Repository scope
 
